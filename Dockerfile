@@ -4,11 +4,8 @@ WORKDIR /usr/src/app
 
 COPY package.json ./
 
-RUN apk --update add curl && \
-    npm install --quiet && \
-    npm run setup-offline && \
-    apk del curl && \
-    rm -rf /var/cache/apk
+RUN npm install --quiet && \
+    npm run setup-offline
 
 RUN adduser -u 9000 -D app
 COPY . ./
