@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+
+"use strict";
+
+const fs = require("fs")
+  , path = require("path")
+  , wreck = require("wreck")
+  , advisoriesLimit = 100
+  , advisoriesDownloadPath = "/tmp/advisories"
+  , advisoriesUrlBase = "https://api.nodesecurity.io/advisories";
+
+function fetchAdvisories(offset = 0) {
+  if (!fs.existsSync(advisoriesDownloadPath)) {
+    fs.mkdirSync(advisoriesDownloadPath);
+  }
+
+  let url = advisoriesUrlBase + "?offset=" + offset + "&limit=" + advisoriesLimit;
+  console.info("GET " + url);
+
+  wreck.get(url, { json: true }, function(error, response, payload) {
+    if (!error) {
+      let json = JSON.stringify(payload)
+        , filename = offset + ".json"
+        , targetPath = path.join(advisoriesDownloadPath, filename);
+
+      fs.writeFileSync(targetPath, json);
+
+      if (payload.count === advisoriesLimit) {
+        fetchAdvisories(offset + payload.count)
+      }
+    } else {
+      throw error;
+    }
+  });
+};
+
+fetchAdvisories();

@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+"use strict";
+
+const fs = require("fs")
+    , path = require("path")
+    , util = require("util")
+    , advisoriesDownloadPath = "/tmp/advisories"
+    , advisoriesTargetPath = "/usr/src/app/advisories.json";
+
+fs.readdir(advisoriesDownloadPath, function (error, files) {
+  if (!error) {
+    let advisories = {};
+
+    files.forEach(function(file) {
+      const content = require(path.join(advisoriesDownloadPath, file));
+      Object.assign(advisories, content);
+      fs.unlinkSync(path.join(advisoriesDownloadPath, file));
+    });
+
+    let json = JSON.stringify(advisories)
+    fs.writeFileSync(advisoriesTargetPath, json);
+    fs.rmdirSync(advisoriesDownloadPath);
+
+    console.info("Advisories saved to " + advisoriesTargetPath);
+  } else {
+    throw error;
+  }
+});

@@ -4,8 +4,10 @@ WORKDIR /usr/src/app
 
 COPY package.json ./
 
-RUN npm install --quiet && \
-    npm run setup-offline
+RUN npm install --quiet
+
+COPY ./bin ./bin
+RUN npm run setup-offline
 
 RUN adduser -u 9000 -D app
 COPY . ./
